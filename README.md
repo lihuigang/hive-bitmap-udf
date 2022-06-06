@@ -1,6 +1,10 @@
 # hive-bitmap-udf
 
-hive bitmap udf 在 hive 中使用 bitmap 实现精确去重功能
+在hive中使用Roaring64Bitmap实现精确去重功能
+主要目的：
+1. 提升 hive 中精确去重性能，代替hive 中的 count(distinct uuid)；
+2. 节省 hive 存储 ，使用 bitmap 对数据压缩 ，减少了存储成本；
+3. 提供在 hive 中 bitmap 的灵活运算 ，比如：交集、并集、差集运算 ，计算后的 bitmap 也可以直接写入 hive；
 
 ## 1. 在hive中创建UDF
 ```
@@ -17,12 +21,12 @@ CREATE TEMPORARY FUNCTION bitmap_xor AS 'com.hive.bitmap.udf.BitmapXorUDF';
 
 ## 2. UDF说明
 
-|  UDF           |             描述                   | 案例       |结果类型|
-| :-----------:  | :-------------------------------: |:-------------: |:-----: |
-|   to_bitmap    |  将num（int或bigint） 转化为 bitmap  |to_bitmap(num)  |   bitmap              |
-|   bitmap_union |  多个bitmap合并为一个bitmap（并集）   |bitmap_union(bitmap)|   bitmap              |
-|   bitmap_count |  计算bitmap中存储的num个数           |bitmap_count(bitmap)|   long              |
-|   bitmap_and   |  计算两个bitmap交集                 |bitmap_and(bitmap1,bitmap2)|   bitmap |             |
+|  UDF           |             描述                   |  案例       |  结果类型   |
+| :-----------:  | :-------------------------------: |:-------------: |:-------------: |
+|   to_bitmap    |  将num（int或bigint） 转化为 bitmap  |to_bitmap(num)  |   bitmap        |
+|   bitmap_union |  多个bitmap合并为一个bitmap（并集）   |bitmap_union(bitmap)|   bitmap     |
+|   bitmap_count |  计算bitmap中存储的num个数           |bitmap_count(bitmap)|   long       |
+|   bitmap_and   |  计算两个bitmap交集                 |bitmap_and(bitmap1,bitmap2)|   bitmap |
 |   bitmap_or    |  计算两个bitmap并集                 |bitmap_or(bitmap1,bitmap2)|   bitmap |
 |   bitmap_xor   |  计算两个bitmap差集                 |bitmap_xor(bitmap1,bitmap2)|   bitmap |
 
@@ -44,5 +48,24 @@ insert into table hive_bitmap_table select  2 as id,to_bitmap(2) as bitmap;
 
 select bitmap_union(bitmap) from hive_bitmap_table;
 select bitmap_count(bitmap_union(bitmap)) from hive_bitmap_table;
+
+```
+
+## 4. 在 hive 中使用 bitmap 实现精确去重
+```
+CREATE TABLE IF NOT EXISTS `hive_table`
+( 
+    k      int      comment 'id',
+    uuid   bigint   comment '用户id'
+) comment 'hive 普通类型表' 
+STORED AS ORC;
+
+-- 普通查询（计算去重人数）
+
+select count(distinct uuid) from hive_table;
+
+-- bitmap查询（计算去重人数）
+
+select bitmap_count(to_bitmap(uuid)) from hive_table;
 
 ```
