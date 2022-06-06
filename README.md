@@ -25,3 +25,24 @@ CREATE TEMPORARY FUNCTION bitmap_xor AS 'com.hive.bitmap.udf.BitmapXorUDF';
 |   bitmap_and   |  计算两个bitmap交集                 |bitmap_and(bitmap1,bitmap2)|   bitmap |             |
 |   bitmap_or    |  计算两个bitmap并集                 |bitmap_or(bitmap1,bitmap2)|   bitmap |
 |   bitmap_xor   |  计算两个bitmap差集                 |bitmap_xor(bitmap1,bitmap2)|   bitmap |
+
+
+## 3. 在 hive 中创建 bitmap 类型表,导入数据并查询
+```
+CREATE TABLE IF NOT EXISTS `hive_bitmap_table`
+( 
+    k      int      comment 'id',
+    bitmap binary   comment 'bitmap'
+) comment 'hive bitmap 类型表' 
+STORED AS ORC;
+
+-- 数据写入
+insert into table  hive_bitmap_table select  1 as id,to_bitmap(1) as bitmap;
+insert into table hive_bitmap_table select  2 as id,to_bitmap(2) as bitmap;
+
+-- 查询
+
+select bitmap_union(bitmap) from hive_bitmap_table;
+select bitmap_count(bitmap_union(bitmap)) from hive_bitmap_table;
+
+```
