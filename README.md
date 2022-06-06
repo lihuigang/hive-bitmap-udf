@@ -1,6 +1,6 @@
 # hive-bitmap-udf
 
-bitmap bitmap udf 在 hive 中使用 bitmap 实现精确去重功能
+hive bitmap udf 在 hive 中使用 bitmap 实现精确去重功能
 
 ## 1. 在hive中创建UDF
 ```
