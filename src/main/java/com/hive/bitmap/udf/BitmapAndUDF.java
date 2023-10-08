@@ -63,7 +63,7 @@ public class BitmapAndUDF extends GenericUDF {
             Roaring64Bitmap bitmap0 = BitmapUtil.deserializeToBitmap(inputBytes0);
             Roaring64Bitmap bitmap1 = BitmapUtil.deserializeToBitmap(inputBytes1);
             bitmap0.and(bitmap1);
-            return BitmapUtil.serializeToBytes(bitmap1);
+            return BitmapUtil.serializeToBytes(bitmap0);
         } catch (IOException ioException) {
             ioException.printStackTrace();
             throw new RuntimeException(ioException);
