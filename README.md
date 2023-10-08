@@ -8,7 +8,7 @@
 
 ## 1. 在hive中创建UDF
 ```
-add jar hdfs://node:9000/hive-bitmap-udf-jar-with-dependencies.jar;
+add jar hdfs://node:9000/hive-bitmap-udf.jar;
 
 CREATE TEMPORARY FUNCTION to_bitmap AS 'com.hive.bitmap.udf.ToBitmapUDAF';
 CREATE TEMPORARY FUNCTION bitmap_union AS 'com.hive.bitmap.udf.BitmapUnionUDAF';
