@@ -1,10 +1,10 @@
 # hive-bitmap-udf
 
-在hive中使用Roaring64Bitmap实现精确去重功能
+在hive、spark中使用Roaring64Bitmap实现精确去重功能
 主要目的：
-1. 提升 hive 中精确去重性能，代替hive 中的 count(distinct uuid)；
+1. 提升 hive、spark 中精确去重性能，代替hive或Spark 中的 count(distinct uuid)；
 2. 节省 hive 存储 ，使用 bitmap 对数据压缩 ，减少了存储成本；
-3. 提供在 hive 中 bitmap 的灵活运算 ，比如：交集、并集、差集运算 ，计算后的 bitmap 也可以直接写入 hive；
+3. 提供在 hive、spark 中 bitmap 的灵活运算 ，比如：交集、并集、差集运算 ，计算后的 bitmap 也可以直接写入 hive 表中；
 
 ## 1. 在hive中创建UDF
 ```
