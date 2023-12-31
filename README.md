@@ -6,7 +6,15 @@
 2. 节省 hive 存储 ，使用 bitmap 对数据压缩 ，减少了存储成本；
 3. 提供在 hive、spark 中 bitmap 的灵活运算 ，比如：交集、并集、差集运算 ，计算后的 bitmap 也可以直接写入 hive 表中；
 
-## 1. 在hive中创建UDF
+如果方便的话，还请各位帮忙点个star，为开源项目加油！
+## 1. 项目编译
+```angular2html
+java 版本：1.8
+```
+```angular2html
+mvn clean package
+```
+## 2. 在hive中创建UDF
 ```
 add jar hdfs://node:9000/hive-bitmap-udf.jar;
 
@@ -22,7 +30,7 @@ CREATE TEMPORARY FUNCTION bitmap_from_array AS 'com.hive.bitmap.udf.BitmapFromAr
 
 ```
 
-## 2. UDF说明
+## 3. UDF说明
 
 |  UDF           |             描述              |                案例                |     结果类型      |
 | :-----------:  |:---------------------------:|:--------------------------------:|:-------------:|
@@ -36,7 +44,7 @@ CREATE TEMPORARY FUNCTION bitmap_from_array AS 'com.hive.bitmap.udf.BitmapFromAr
 |   bitmap_to_array   |       bitmap转化为array        | bitmap_to_array(bitmap) | array<bigint> |
 
 
-## 3. 在 hive 中创建 bitmap 类型表,导入数据并查询
+## 4. 在 hive 中创建 bitmap 类型表,导入数据并查询
 ```
 CREATE TABLE IF NOT EXISTS `hive_bitmap_table`
 ( 
@@ -56,7 +64,7 @@ select bitmap_count(bitmap_union(bitmap)) from hive_bitmap_table;
 
 ```
 
-## 4. 在 hive 中使用 bitmap 实现精确去重
+## 5. 在 hive 中使用 bitmap 实现精确去重
 ```
 CREATE TABLE IF NOT EXISTS `hive_table`
 ( 
