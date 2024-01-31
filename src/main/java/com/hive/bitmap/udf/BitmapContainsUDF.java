@@ -18,24 +18,27 @@
 package com.hive.bitmap.udf;
 
 import com.hive.bitmap.common.BitmapUtil;
-import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
-import org.roaringbitmap.longlong.Roaring64Bitmap;
-
 import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
+import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.BinaryObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
+import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
+import org.roaringbitmap.longlong.Roaring64Bitmap;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-@Description(name = "bitmap_or", value = "a _FUNC_ b - Compute union of two or more input bitmaps, returns the new bitmap")
-public class BitmapOrUDF extends GenericUDF {
+@Description(name = "bitmap_to_array")
+public class BitmapContainsUDF extends GenericUDF {
 
-    private transient BinaryObjectInspector inputOI0;
-    private transient BinaryObjectInspector inputOI1;
+    private transient BinaryObjectInspector inputOI01;
+    private transient PrimitiveObjectInspector inputOI02;
 
     @Override
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
@@ -46,37 +49,36 @@ public class BitmapOrUDF extends GenericUDF {
 
         ObjectInspector input0 = arguments[0];
         ObjectInspector input1 = arguments[1];
-        if (!(input0 instanceof BinaryObjectInspector) || !(input1 instanceof BinaryObjectInspector)) {
-            throw new UDFArgumentException("first and second argument must be a binary");
+        if (!(input0 instanceof BinaryObjectInspector)) {
+            throw new UDFArgumentException("first argument must be a binary");
         }
 
-        this.inputOI0 = (BinaryObjectInspector) input0;
-        this.inputOI1 = (BinaryObjectInspector) input1;
+        if (!(input1 instanceof IntObjectInspector || input1 instanceof LongObjectInspector)) {
+            throw new UDFArgumentException("second argument must be a int or bigint");
+        }
 
-        return PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector;
+        this.inputOI01 = (BinaryObjectInspector) input0;
+        this.inputOI02 = (PrimitiveObjectInspector) input1;
+
+        return PrimitiveObjectInspectorFactory.javaBooleanObjectInspector;
     }
 
     @Override
     public Object evaluate(DeferredObject[]  args) throws HiveException {
-        if (args[0] == null || args[1] == null) {
-            return null;
-        }
-        byte[] inputBytes0 = this.inputOI0.getPrimitiveJavaObject(args[0].get());
-        byte[] inputBytes1 = this.inputOI1.getPrimitiveJavaObject(args[1].get());
 
+        byte[] inputBytes = this.inputOI01.getPrimitiveJavaObject(args[0].get());
+        long number = PrimitiveObjectInspectorUtils.getLong(args[1].get(), inputOI02);
         try {
-            Roaring64Bitmap bitmap0 = BitmapUtil.deserializeToBitmap(inputBytes0);
-            Roaring64Bitmap bitmap1 = BitmapUtil.deserializeToBitmap(inputBytes1);
-            bitmap0.or(bitmap1);
-            return BitmapUtil.serializeToBytes(bitmap0);
+            Roaring64Bitmap bitmapValue = BitmapUtil.deserializeToBitmap(inputBytes);
+            return bitmapValue.contains(number);
         } catch (IOException ioException) {
             ioException.printStackTrace();
-            throw new RuntimeException(ioException);
+            throw new HiveException(ioException);
         }
     }
 
     @Override
     public String getDisplayString(String[] children) {
-        return "Usage: bitmap_or(bitmap1,bitmap2)";
+        return "Usage: bitmap_contains(bitmap,num)";
     }
 }

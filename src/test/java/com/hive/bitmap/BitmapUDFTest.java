@@ -1,13 +1,10 @@
 package com.hive.bitmap;
 
 import org.apache.spark.SparkConf;
-import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 
 public class BitmapUDFTest {
 
@@ -27,15 +24,18 @@ public class BitmapUDFTest {
         spark.sql("CREATE TEMPORARY FUNCTION bitmap_xor AS 'com.hive.bitmap.udf.BitmapXorUDF'");
         spark.sql("CREATE TEMPORARY FUNCTION bitmap_to_array AS 'com.hive.bitmap.udf.BitmapToArrayUDF'");
         spark.sql("CREATE TEMPORARY FUNCTION bitmap_from_array AS 'com.hive.bitmap.udf.BitmapFromArrayUDF'");
+        spark.sql("CREATE TEMPORARY FUNCTION bitmap_contains AS 'com.hive.bitmap.udf.BitmapContainsUDF'");
     }
 
     @Test
     public void bitmapToArrayUDFTest() {
-        spark.sql("select bitmap_count(bitmap_from_array(array(1,2,3,4,5)))").show();
+        spark.sql("select bitmap_count(bitmap_from_array(array(1,2,3,4,5))) AS `cnt=5`").show();
         spark.sql("select bitmap_to_array(bitmap_from_array(array(1,2,3,4,5)))").show();
         spark.sql("select bitmap_to_array(bitmap_and(bitmap_from_array(array(1,2,3,4,5)),bitmap_from_array(array(1,2))))").show();
         spark.sql("select bitmap_to_array(bitmap_or(bitmap_from_array(array(1,2,3)),bitmap_from_array(array(5))))").show();
         spark.sql("select bitmap_to_array(bitmap_or(bitmap_from_array(array(1,2,3)),bitmap_from_array(array(3))))").show();
+        spark.sql("select bitmap_contains(bitmap_from_array(array(1,2,3)),2)").show();
+
 
 
     }
