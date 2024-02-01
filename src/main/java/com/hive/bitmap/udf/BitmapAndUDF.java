@@ -18,6 +18,7 @@
 package com.hive.bitmap.udf;
 
 import com.hive.bitmap.common.BitmapUtil;
+import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.roaringbitmap.longlong.Roaring64Bitmap;
 
 import org.apache.hadoop.hive.ql.exec.Description;
@@ -38,6 +39,10 @@ public class BitmapAndUDF extends GenericUDF {
 
     @Override
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
+
+        if (arguments.length != 2) {
+            throw new UDFArgumentTypeException(arguments.length, "Exactly two argument is expected.");
+        }
 
         ObjectInspector input0 = arguments[0];
         ObjectInspector input1 = arguments[1];
