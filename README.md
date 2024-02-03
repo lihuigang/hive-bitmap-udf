@@ -27,21 +27,24 @@ CREATE TEMPORARY FUNCTION bitmap_or AS 'com.hive.bitmap.udf.BitmapOrUDF';
 CREATE TEMPORARY FUNCTION bitmap_xor AS 'com.hive.bitmap.udf.BitmapXorUDF';
 CREATE TEMPORARY FUNCTION bitmap_to_array AS 'com.hive.bitmap.udf.BitmapToArrayUDF';
 CREATE TEMPORARY FUNCTION bitmap_from_array AS 'com.hive.bitmap.udf.BitmapFromArrayUDF';
+CREATE TEMPORARY FUNCTION bitmap_contains AS 'com.hive.bitmap.udf.BitmapContainsUDF';
 
 ```
 
 ## 3. UDF说明
 
-|  UDF           |             描述              |                案例                |     结果类型      |
-| :-----------:  |:---------------------------:|:--------------------------------:|:-------------:|
-|   to_bitmap    | 将num（int或bigint） 转化为 bitmap |          to_bitmap(num)          |    bitmap     |
-|   bitmap_union |   多个bitmap合并为一个bitmap（并集）   |       bitmap_union(bitmap)       |    bitmap     |
-|   bitmap_count |      计算bitmap中存储的num个数      |       bitmap_count(bitmap)       |     long      |
-|   bitmap_and   |        计算两个bitmap交集         |   bitmap_and(bitmap1,bitmap2)    |    bitmap     |
-|   bitmap_or    |        计算两个bitmap并集         |    bitmap_or(bitmap1,bitmap2)    |    bitmap     |
-|   bitmap_xor   |        计算两个bitmap差集         |   bitmap_xor(bitmap1,bitmap2)    |    bitmap     |
-|   bitmap_from_array   |       array 转化为bitmap       |     bitmap_from_array(array)     |    bitmap     |
-|   bitmap_to_array   |       bitmap转化为array        | bitmap_to_array(bitmap) | array<bigint> |
+|        UDF        |             描述              |                案例                |     结果类型      |
+|:-----------------:|:---------------------------:|:--------------------------------:|:-------------:|
+|     to_bitmap     | 将num（int或bigint） 转化为 bitmap |          to_bitmap(num)          |    bitmap     |
+|   bitmap_union    |   多个bitmap合并为一个bitmap（并集）   |       bitmap_union(bitmap)       |    bitmap     |
+|   bitmap_count    |      计算bitmap中存储的num个数      |       bitmap_count(bitmap)       |     long      |
+|    bitmap_and     |        计算两个bitmap交集         |   bitmap_and(bitmap1,bitmap2)    |    bitmap     |
+|     bitmap_or     |        计算两个bitmap并集         |    bitmap_or(bitmap1,bitmap2)    |    bitmap     |
+|    bitmap_xor     |        计算两个bitmap差集         |   bitmap_xor(bitmap1,bitmap2)    |    bitmap     |
+| bitmap_from_array |  array 转化为bitmap         	  |     bitmap_from_array(array)     |    bitmap     |
+|  bitmap_to_array  |       bitmap转化为array        |     bitmap_to_array(bitmap)      | array<bigint> |
+|  bitmap_contains  |   bitmap是否包含另一个bitmap全部元素   | bitmap_contains(bitmap1,bitmap2) |    boolean    |
+|  bitmap_contains  |       bitmap是否包含某个元素        |   bitmap_contains(bitmap,num)    |    boolean    |
 
 
 ## 4. 在 hive 中创建 bitmap 类型表,导入数据并查询

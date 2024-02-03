@@ -24,17 +24,14 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
-import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
 import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.*;
 import org.roaringbitmap.longlong.Roaring64Bitmap;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
-@Description(name = "bitmap_to_array")
+@Description(name = "bitmap_contains")
 public class BitmapContainsUDF extends GenericUDF {
 
     private transient BinaryObjectInspector inputOI01;
@@ -53,8 +50,8 @@ public class BitmapContainsUDF extends GenericUDF {
             throw new UDFArgumentException("first argument must be a binary");
         }
 
-        if (!(input1 instanceof IntObjectInspector || input1 instanceof LongObjectInspector)) {
-            throw new UDFArgumentException("second argument must be a int or bigint");
+        if (!(input1 instanceof IntObjectInspector || input1 instanceof LongObjectInspector || input1 instanceof BinaryObjectInspector)) {
+            throw new UDFArgumentException("second argument must be a int or bigint or bitmap");
         }
 
         this.inputOI01 = (BinaryObjectInspector) input0;
@@ -65,20 +62,42 @@ public class BitmapContainsUDF extends GenericUDF {
 
     @Override
     public Object evaluate(DeferredObject[]  args) throws HiveException {
+        Roaring64Bitmap bitmapValue = getBitmapFromBytes(args[0]);
 
-        byte[] inputBytes = this.inputOI01.getPrimitiveJavaObject(args[0].get());
-        long number = PrimitiveObjectInspectorUtils.getLong(args[1].get(), inputOI02);
-        try {
-            Roaring64Bitmap bitmapValue = BitmapUtil.deserializeToBitmap(inputBytes);
+        if (this.inputOI02 instanceof BinaryObjectInspector) {
+            Roaring64Bitmap bitmap2 = getBitmapFromBytes(args[1]);
+            return checkBitmapContains(bitmapValue, bitmap2);
+        } else {
+            long number = PrimitiveObjectInspectorUtils.getLong(args[1].get(), inputOI02);
             return bitmapValue.contains(number);
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-            throw new HiveException(ioException);
         }
     }
 
     @Override
     public String getDisplayString(String[] children) {
         return "Usage: bitmap_contains(bitmap,num)";
+    }
+
+    private boolean checkBitmapContains(Roaring64Bitmap bitmap1, Roaring64Bitmap bitmap2) {
+
+        if (bitmap2.isEmpty()) {
+            return false;
+        }
+        Iterator<Long> iterator = bitmap2.iterator();
+        while (iterator.hasNext()) {
+            if (!bitmap1.contains(iterator.next())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Roaring64Bitmap getBitmapFromBytes(DeferredObject arg) throws HiveException {
+        byte[] inputBytes = this.inputOI01.getPrimitiveJavaObject(arg.get());
+        try {
+            return BitmapUtil.deserializeToBitmap(inputBytes);
+        } catch (IOException ioException) {
+            throw new HiveException(ioException);
+        }
     }
 }
