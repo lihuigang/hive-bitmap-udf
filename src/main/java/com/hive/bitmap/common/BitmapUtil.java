@@ -36,6 +36,9 @@ public class BitmapUtil {
 
     public static Roaring64Bitmap deserializeToBitmap(byte[] bytes) throws IOException {
         Roaring64Bitmap bitmapValue = new Roaring64Bitmap();
+        if (bytes == null) {
+            return bitmapValue;
+        }
         DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes));
         bitmapValue.deserialize(in);
         in.close();

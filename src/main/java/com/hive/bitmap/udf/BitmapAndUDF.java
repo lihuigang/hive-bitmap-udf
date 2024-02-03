@@ -58,9 +58,7 @@ public class BitmapAndUDF extends GenericUDF {
 
     @Override
     public Object evaluate(DeferredObject[]  args) throws HiveException {
-        if (args[0] == null || args[1] == null) {
-            return null;
-        }
+
         byte[] inputBytes0 = this.inputOI0.getPrimitiveJavaObject(args[0].get());
         byte[] inputBytes1 = this.inputOI1.getPrimitiveJavaObject(args[1].get());
 

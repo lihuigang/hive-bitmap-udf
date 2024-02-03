@@ -35,7 +35,7 @@ public class BitmapUDFTest {
         spark.sql("select bitmap_to_array(bitmap_or(bitmap_from_array(array(1,2,3)),bitmap_from_array(array(5))))").show();
         spark.sql("select bitmap_to_array(bitmap_or(bitmap_from_array(array(1,2,3)),bitmap_from_array(array(3))))").show();
         spark.sql("select bitmap_contains(bitmap_from_array(array(1,2,3)),2)").show();
-
+        spark.sql("select bitmap_contains(bitmap_from_array(array(1,2,3)),cast( null as binary))").show();
 
 
     }
