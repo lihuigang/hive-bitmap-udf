@@ -67,6 +67,11 @@ insert into table hive_bitmap_table select  2 as id,to_bitmap(2) as bitmap;
 select bitmap_union(bitmap) from hive_bitmap_table;
 select bitmap_count(bitmap_union(bitmap)) from hive_bitmap_table;
 
+select bitmap_contains(bitmap,1) from hive_bitmap_table;
+select bitmap_contains(bitmap,bitmap_from_array(array(1,2))) from hive_bitmap_table;
+
+
+
 ```
 
 ## 5. 在 hive 中使用 bitmap 实现精确去重
