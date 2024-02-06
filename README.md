@@ -16,6 +16,7 @@ mvn clean package
 ```
 编译完成后使用jar包：hive-bitmap-udf.jar
 ## 2. 在hive中创建UDF
+将 hive-bitmap-udf.jar 上传至HDFS系统或者放到本地，在spark或者hive中注册使用
 ```
 add jar hdfs://node:9000/hive-bitmap-udf.jar;
 
