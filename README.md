@@ -14,6 +14,7 @@ java 版本：1.8
 ```angular2html
 mvn clean package
 ```
+编译完成后使用jar包：hive-bitmap-udf.jar
 ## 2. 在hive中创建UDF
 ```
 add jar hdfs://node:9000/hive-bitmap-udf.jar;
