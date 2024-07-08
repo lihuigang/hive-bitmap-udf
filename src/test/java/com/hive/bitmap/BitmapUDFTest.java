@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class BitmapUDFTest {
 
-    private SparkConf sparkConf = new SparkConf().setAppName("build job");
+    private SparkConf sparkConf = new SparkConf().setAppName("build job").set("log.level", "ERROR");
 
     private  SparkSession spark = SparkSession.builder().enableHiveSupport()
             .master("local")
@@ -16,6 +16,7 @@ public class BitmapUDFTest {
 
     @Before
     public void init() {
+
         spark.sql("CREATE TEMPORARY FUNCTION to_bitmap AS 'com.hive.bitmap.udf.ToBitmapUDAF'");
         spark.sql("CREATE TEMPORARY FUNCTION bitmap_union AS 'com.hive.bitmap.udf.BitmapUnionUDAF'");
         spark.sql("CREATE TEMPORARY FUNCTION bitmap_count AS 'com.hive.bitmap.udf.BitmapCountUDF'");
@@ -33,7 +34,7 @@ public class BitmapUDFTest {
         spark.sql("select bitmap_to_array(bitmap_from_array(array(1,2,3,4,5)))").show();
         spark.sql("select bitmap_to_array(bitmap_and(bitmap_from_array(array(1,2,3,4,5)),bitmap_from_array(array(1,2))))").show();
         spark.sql("select bitmap_to_array(bitmap_or(bitmap_from_array(array(1,2,3)),bitmap_from_array(array(5))))").show();
-        spark.sql("select bitmap_to_array(bitmap_or(bitmap_from_array(array(1,2,3)),bitmap_from_array(array(3))))").show();
+        spark.sql("select bitmap_to_array(bitmap_xor(bitmap_from_array(array(1,2,3)),bitmap_from_array(array(3))))").show();
     }
 
     @Test
