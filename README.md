@@ -48,8 +48,9 @@ CREATE TEMPORARY FUNCTION bitmap_contains AS 'com.hive.bitmap.udf.BitmapContains
 |  bitmap_contains  |   bitmap是否包含另一个bitmap全部元素   | bitmap_contains(bitmap1,bitmap2) |    boolean    |
 |  bitmap_contains  |       bitmap是否包含某个元素        |   bitmap_contains(bitmap,num)    |    boolean    |
 
-
-## 4. 在 hive 中创建 bitmap 类型表,导入数据并查询
+## 4. 下载地址
+https://github.com/lihuigang/hive-bitmap-udf/releases
+## 5. 在 hive 中创建 bitmap 类型表,导入数据并查询
 ```
 CREATE TABLE IF NOT EXISTS `hive_bitmap_table`
 ( 
