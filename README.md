@@ -39,7 +39,7 @@ CREATE TEMPORARY FUNCTION bitmap_contains AS 'com.hive.bitmap.udf.BitmapContains
 |:-----------------:|:-----------------------------:|:--------------------------------:|:-------------:|
 |     to_bitmap     | 将num（int或bigint） 转化为 bitmap |          to_bitmap(num)          |    bitmap     |
 |   bitmap_union    |   多个bitmap合并为一个bitmap（并集）   |       bitmap_union(bitmap)       |    bitmap     |
-|   bitmap_count    |      计算bitmap中存储的num个数      |       bitmap_count(bitmap)       |     long      |
+|   bitmap_count    |      计算bitmap中存储的num个数      |       bitmap_count(bitmap)       |     bigint      |
 |    bitmap_and     |        计算两个bitmap交集         |   bitmap_and(bitmap1,bitmap2)    |    bitmap     |
 |     bitmap_or     |        计算两个bitmap并集         |    bitmap_or(bitmap1,bitmap2)    |    bitmap     |
 |    bitmap_xor     |        计算两个bitmap差集         |   bitmap_xor(bitmap1,bitmap2)    |    bitmap     |
