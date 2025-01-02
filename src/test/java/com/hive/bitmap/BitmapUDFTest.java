@@ -10,7 +10,7 @@ public class BitmapUDFTest {
 
     private SparkConf sparkConf = new SparkConf().setAppName("build job").set("log.level", "ERROR");
 
-    private  SparkSession spark = SparkSession.builder().enableHiveSupport()
+    private SparkSession spark = SparkSession.builder().enableHiveSupport()
             .master("local")
             .config(sparkConf).getOrCreate();
 
@@ -26,6 +26,7 @@ public class BitmapUDFTest {
         spark.sql("CREATE TEMPORARY FUNCTION bitmap_to_array AS 'com.hive.bitmap.udf.BitmapToArrayUDF'");
         spark.sql("CREATE TEMPORARY FUNCTION bitmap_from_array AS 'com.hive.bitmap.udf.BitmapFromArrayUDF'");
         spark.sql("CREATE TEMPORARY FUNCTION bitmap_contains AS 'com.hive.bitmap.udf.BitmapContainsUDF'");
+        spark.sql("CREATE TEMPORARY FUNCTION bitmap_intersect as 'com.hive.bitmap.udf.BitmapIntersectUDAF'");
     }
 
     @Test
@@ -43,5 +44,21 @@ public class BitmapUDFTest {
         spark.sql("select bitmap_contains(bitmap_from_array(array(1,2,3)),bitmap_from_array(array(1,2,3)))").show();
         spark.sql("select bitmap_contains(bitmap_from_array(array(1,2,3)),bitmap_from_array(array(1,2,3,4)))").show();
         spark.sql("select bitmap_contains(bitmap_from_array(array(1,2,3)),cast( null as binary))").show();
+    }
+
+    @Test
+    public void bitmapUnionIntersectUDAFTest() {
+        String s = "select\n" +
+                "\tbitmap_to_array(bitmap_intersect(val)) as `r1=[3]`,\n" +
+                "\tbitmap_to_array(bitmap_union(val)) as `r2=[1,2,3,5,6]`\n" +
+                "from\n" +
+                "(\n" +
+                "\tselect bitmap_from_array(array(1,2,3)) as val\n" +
+                "\tunion all\n" +
+                "\tselect bitmap_from_array(array(1,3,5)) as val\n" +
+                "\tunion all\n" +
+                "\tselect bitmap_from_array(array(2,3,6)) as val\n" +
+                ")t";
+        spark.sql(s).show();
     }
 }

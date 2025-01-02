@@ -55,20 +55,13 @@ public class BitmapUnionUDAF extends AbstractGenericUDAFResolver {
     //the same (desired) value.
     public static class GenericEvaluate extends GenericUDAFEvaluator {
 
-        private transient BinaryObjectInspector inputOI;
-        private transient BinaryObjectInspector internalMergeOI;
+        private transient BinaryObjectInspector binaryOI;
 
         @Override
         public ObjectInspector init(Mode m, ObjectInspector[] parameters)
                 throws HiveException {
             super.init(m, parameters);
-            // init output object inspectors
-            // The output of a partial aggregation is a binary
-            if (m == Mode.PARTIAL1) {
-                this.inputOI = (BinaryObjectInspector) parameters[0];
-            } else {
-                this.internalMergeOI = (BinaryObjectInspector) parameters[0];
-            }
+            this.binaryOI = (BinaryObjectInspector) parameters[0];
             return PrimitiveObjectInspectorFactory.javaByteArrayObjectInspector;
         }
 
@@ -95,13 +88,7 @@ public class BitmapUnionUDAF extends AbstractGenericUDAFResolver {
             assert (parameters.length == 1);
             Object p = parameters[0];
             if (p != null) {
-                BitmapAgg myagg = (BitmapAgg) agg;
-                byte[] partialResult = this.inputOI.getPrimitiveJavaObject(parameters[0]);
-                try {
-                    myagg.bitmap.or(BitmapUtil.deserializeToBitmap(partialResult));
-                } catch (IOException ioException) {
-                    throw new HiveException(ioException);
-                }
+                merge(agg, p);
             }
         }
 
@@ -118,7 +105,7 @@ public class BitmapUnionUDAF extends AbstractGenericUDAFResolver {
         @Override
         public void merge(AggregationBuffer agg, Object partial) {
             BitmapAgg myagg = (BitmapAgg) agg;
-            byte[] partialResult = this.internalMergeOI.getPrimitiveJavaObject(partial);
+            byte[] partialResult = this.binaryOI.getPrimitiveJavaObject(partial);
             try {
                 myagg.bitmap.or(BitmapUtil.deserializeToBitmap(partialResult));
             } catch (IOException e) {
